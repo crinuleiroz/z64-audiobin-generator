@@ -9,3 +9,6 @@ The script will check the size of the ROM to ensure it is decompressed, then it 
 
 > [!NOTE]
 > The output `.audiobin` file will be in the same folder as the script — it will not be in the same folder as the input ROM file.
+
+## 🖥️ ROM Decompression Utility
+If you need to decompress a ROM, you can use [z64decompress](https://github.com/z64utils/z64decompress) by z64utils. Just drag and drop your ROM onto the executable (`.exe`) file.
