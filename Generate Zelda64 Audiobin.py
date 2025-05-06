@@ -22,6 +22,7 @@ MM_PURPLE = "\x1b[38;5;141m"
 ROM_FILE = sys.argv[1]
 ROM_LENGTH = 67108864 # Decompressed ROM Size
 
+# "Filename": (offset, size)
 AUDIOBIN_OFFSETS: dict[str, dict[str, tuple[int, int]]] = {
     "oot": {
         "Audiobank":        (0x0000D390, 0x0001CA50),
