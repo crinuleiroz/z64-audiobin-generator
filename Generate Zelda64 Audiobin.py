@@ -24,18 +24,18 @@ ROM_LENGTH = 67108864 # Decompressed ROM Size
 
 # "Filename": (offset, size)
 AUDIOBIN_OFFSETS: dict[str, dict[str, tuple[int, int]]] = {
-  "oot": {
-    "Audiobank":        (0x0000D390, 0x0001CA50),
-    "Audiobank_index":  (0x00B896A0, 0x00000270),
-    "Audiotable":       (0x00079470, 0x00460AD0),
-    "Audiotable_index": (0x00B8A1C0, 0x00000080)
-  },
-  "mm": {
-    "Audiobank":        (0x00020700, 0x000263F0),
-    "Audiobank_index":  (0x00C776C0, 0x000002A0),
-    "Audiotable":       (0x00097F70, 0x00548770),
-    "Audiotable_index": (0x00C78380, 0x00000040)
-  }
+    "oot": {
+        "Audiobank":        (0x0000D390, 0x0001CA50),
+        "Audiobank_index":  (0x00B8A1C0, 0x000002A0),
+        "Audiotable":       (0x00079470, 0x00460AD0),
+        "Audiotable_index": (0x00B896A0, 0x00000080)
+    },
+    "mm": {
+        "Audiobank":        (0x00020700, 0x000263F0),
+        "Audiobank_index":  (0x00C776C0, 0x000002A0),
+        "Audiotable":       (0x00097F70, 0x00548770),
+        "Audiotable_index": (0x00C78380, 0x00000040)
+    }
 }
 
 class SysMsg:
@@ -171,23 +171,23 @@ if __name__ == "__main__":
 
     # OCARINA OF TIME BYTESWAPPED
     elif b"HT EELEGDNO  FEZDL A\x00\x00\x00\x00\x00\x00C\x00L\x00E" in rom_header:
-      SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
-      SysMsg.byteswapped_rom()
+        SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
+        SysMsg.byteswapped_rom()
 
     # MAJORA'S MASK BYTESWAPPED
     elif b"EZDL AAMOJARS'M SA K\x00\x00\x00\x00\x00\x00N\x00SZ\x00E" in rom_header:
-      SysMsg.detected_game("Majora's Mask", MM_PURPLE)
-      SysMsg.byteswapped_rom()
+        SysMsg.detected_game("Majora's Mask", MM_PURPLE)
+        SysMsg.byteswapped_rom()
 
     # OCARINA OF TIME LITTLE ENDIAN
     elif b"EHTEGELO DNEZ F ADL\x00\x00\x00\x00C\x00\x00\x00\x00ELZ" in rom_header:
-      SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
-      SysMsg.little_endian_rom()
+        SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
+        SysMsg.little_endian_rom()
 
     # MAJORA'S MASK LITTLE ENDIAN
     elif b"DLEZAM AAROJM S' KSA\x00\x00\x00\x00N\x00\x00\x00\x00ESZ" in rom_header:
-      SysMsg.detected_game("Majora's Mask", MM_PURPLE)
-      SysMsg.little_endian_rom()
+        SysMsg.detected_game("Majora's Mask", MM_PURPLE)
+        SysMsg.little_endian_rom()
 
     # UNKNOWN GAME
     else:
