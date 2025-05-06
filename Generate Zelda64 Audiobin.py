@@ -38,6 +38,79 @@ AUDIOBIN_OFFSETS: dict[str, dict[str, tuple[int, int]]] = {
     }
 }
 
+class SysMsg:
+  @staticmethod
+  def header():
+    print(f'''\
+{GREY}[▪]----------------------------------[▪]
+ |   {RESET}{PINK}AUDIOBIN GENERATOR {GREY}v{LAST_UPDATED}   |
+[▪]----------------------------------[▪]{RESET}
+''')
+
+  @staticmethod
+  def complete():
+    print(f'''\
+{GREY}[▪]----------------------------------[▪]
+ |     {RESET}{GREEN}Process is now completed      {GREY}|
+[▪]----------------------------------[▪]{RESET}
+''')
+    os.system('pause')
+
+  @staticmethod
+  def compressed_rom():
+    print(f'''\
+{GREY}[{PINK}>{GREY}]:{RESET} Error: ROM file is not decompressed!
+''')
+    os.system('pause')
+    sys.exit(1)
+
+  @staticmethod
+  def read_rom_header():
+    print(f'''\
+{GREY}[{PINK}>{GREY}]:{RESET} Reading ROM header:     {BLUE}"{ROM_FILE}"{RESET}''')
+
+  @staticmethod
+  def detected_game(game : str, color : str):
+    print(f'''\
+{GREY}[{PINK}>{GREY}]:{RESET} Detected game:          {color}"{game}"{RESET}
+''')
+
+  @staticmethod
+  def byteswapped_rom():
+    print(f'''\
+{GREY}[{PINK}>{GREY}]:{RESET} Error: ROM file byte order is "Byteswapped", use {PINK}tool64{RESET} to change the byte order to "Big Endian"!
+''')
+    os.system('pause')
+    sys.exit(1)
+
+  @staticmethod
+  def little_endian_rom():
+    print(f'''\
+{GREY}[{PINK}>{GREY}]:{RESET} Error: ROM file byte order is "Little Endian", use {PINK}tool64{RESET} to change the byte order to "Big Endian"!
+''')
+    os.system('pause')
+    sys.exit(1)
+
+  @staticmethod
+  def unknown_game():
+    print(f'''\
+{GREY}[{PINK}>{GREY}]:{RESET} Error: Decompressed ROM has an unexpected ROM header!
+''')
+    os.system('pause')
+    sys.exit(1)
+
+  @staticmethod
+  def processing_file(name: str):
+    print(f'''\
+{GREY}[{PINK}>{GREY}]:{RESET} Extracting and writing: {BLUE}"{name}"{RESET}''')
+
+  @staticmethod
+  def creating_archive(file_dir : str, filename : str):
+    print(f'''\
+
+{GREY}[{PINK}>{GREY}]:{RESET} Creating archive:       {BLUE}"{file_dir}/{filename}.audiobin"{RESET}
+''')
+
 def extract_and_write_audiofile(rom: BinaryIO, offset : int, size: int, filename: str, tempfolder: str):
   rom.seek(offset)
   audio_data = rom.read(size)
@@ -48,28 +121,20 @@ def extract_and_write_audiofile(rom: BinaryIO, offset : int, size: int, filename
 def generate_oot_audiobin(file_dir : str, tempfolder : str):
   with open(ROM_FILE, 'rb') as rom:
     for name, (offset, size) in AUDIOBIN_OFFSETS["oot"].items():
-      print(f'''\
-{GREY}[{PINK}>{GREY}]:{RESET} Extracting and writing: {BLUE}"{name}"{RESET}''')
+      SysMsg.processing_file(name)
       extract_and_write_audiofile(rom, offset, size, name, tempfolder)
 
-  print(f'''\
-
-{GREY}[{PINK}>{GREY}]:{RESET} Creating archive:       {BLUE}"{file_dir}/OOT.audiobin"{RESET}
-''')
+  SysMsg.creating_archive(file_dir, "OOT")
   shutil.make_archive(f"{file_dir}/OOT", "zip", tempfolder)
   os.rename(f"{file_dir}/OOT.zip", f"{file_dir}/OOT.audiobin")
 
 def generate_mm_audiobin(file_dir : str, tempfolder : str):
   with open(ROM_FILE, 'rb') as rom:
     for name, (offset, size) in AUDIOBIN_OFFSETS["mm"].items():
-      print(f'''\
-{GREY}[{PINK}>{GREY}]:{RESET} Extracting and writing: {BLUE}"{name}"{RESET}''')
+      SysMsg.process_file(name)
       extract_and_write_audiofile(rom, offset, size, name, tempfolder)
 
-  print(f'''\
-
-{GREY}[{PINK}>{GREY}]:{RESET} Creating archive:       {BLUE}"{file_dir}/MM.audiobin"{RESET}
-''')
+  SysMsg.creating_archive(file_dir, "MM")
   shutil.make_archive(f"{file_dir}/MM", "zip", tempfolder)
   os.rename(f"{file_dir}/MM.zip", f"{file_dir}/MM.audiobin")
 
@@ -85,44 +150,48 @@ def main(game: str) -> None:
 
 
 if __name__ == "__main__":
-  print(f'''\
-{GREY}[▪]----------------------------------[▪]
- |   {RESET}{PINK}AUDIOBIN GENERATOR {GREY}v{LAST_UPDATED}   |
-[▪]----------------------------------[▪]{RESET}
-''')
-  if os.path.getsize(ROM_FILE) != ROM_LENGTH:
-    print(f'''\
-{GREY}[{PINK}>{GREY}]:{RESET} Error: ROM file is not decompressed!
-''')
-    os.system('pause')
-    sys.exit(1)
+  SysMsg.header()
 
-  print(f'''\
-{GREY}[{PINK}>{GREY}]:{RESET} Reading ROM header:     {BLUE}"{ROM_FILE}"{RESET}''')
+  if os.path.getsize(ROM_FILE) != ROM_LENGTH:
+    SysMsg.compressed_rom()
+
+  SysMsg.read_rom_header()
   with open(ROM_FILE, 'rb') as rom:
     rom_header = rom.read(64)
 
+    # OCARINA OF TIME BIG ENDIAN
     if b"THE LEGEND OF ZELDA \x00\x00\x00\x00\x00\x00\x00CZLE\x00" in rom_header:
-      print(f'''\
-{GREY}[{PINK}>{GREY}]:{RESET} Detected game:          {OOT_BLUE}"Ocarina of Time"{RESET}
-''')
+      SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
       game = "oot"
+
+    # MAJORA'S MASK BIG ENDIAN
     elif b"ZELDA MAJORA'S MASK \x00\x00\x00\x00\x00\x00\x00NZSE\x00" in rom_header:
-      print(f'''\
-{GREY}[{PINK}>{GREY}]:{RESET} Detected game:          {MM_PURPLE}"Majora's Mask"{RESET}
-''')
+      SysMsg.detected_game("Majora's Mask", MM_PURPLE)
       game = "mm"
+
+    # OCARINA OF TIME BYTESWAPPED
+    elif b"HT EELEGDNO  FEZDL A\x00\x00\x00\x00\x00\x00C\x00L\x00E" in rom_header:
+        SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
+        SysMsg.byteswapped_rom()
+
+    # MAJORA'S MASK BYTESWAPPED
+    elif b"EZDL AAMOJARS'M SA K\x00\x00\x00\x00\x00\x00N\x00SZ\x00E" in rom_header:
+        SysMsg.detected_game("Majora's Mask", MM_PURPLE)
+        SysMsg.byteswapped_rom()
+
+    # OCARINA OF TIME LITTLE ENDIAN
+    elif b"EHTEGELO DNEZ F ADL\x00\x00\x00\x00C\x00\x00\x00\x00ELZ" in rom_header:
+        SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
+        SysMsg.little_endian_rom()
+
+    # MAJORA'S MASK LITTLE ENDIAN
+    elif b"DLEZAM AAROJM S' KSA\x00\x00\x00\x00N\x00\x00\x00\x00ESZ" in rom_header:
+        SysMsg.detected_game("Majora's Mask", MM_PURPLE)
+        SysMsg.little_endian_rom()
+
+    # UNKNOWN GAME
     else:
-      print(f'''\
-{GREY}[{PINK}>{GREY}]:{RESET} Error: Decompressed ROM has an unexpected ROM header!
-''')
-      os.system('pause')
-      sys.exit(1)
+      SysMsg.unknown_game()
 
   main(game)
-  print(f'''\
-{GREY}[▪]----------------------------------[▪]
- |     {RESET}{GREEN}Process is now completed      {GREY}|
-[▪]----------------------------------[▪]{RESET}
-''')
-  os.system('pause')
+  SysMsg.complete()
