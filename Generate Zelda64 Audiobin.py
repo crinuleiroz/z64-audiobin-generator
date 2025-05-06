@@ -26,9 +26,9 @@ ROM_LENGTH = 67108864 # Decompressed ROM Size
 AUDIOBIN_OFFSETS: dict[str, dict[str, tuple[int, int]]] = {
     "oot": {
         "Audiobank":        (0x0000D390, 0x0001CA50),
-        "Audiobank_index":  (0x00B8A1C0, 0x000002A0),
+        "Audiobank_index":  (0x00B896A0, 0x00000270),
         "Audiotable":       (0x00079470, 0x00460AD0),
-        "Audiotable_index": (0x00B896A0, 0x00000080)
+        "Audiotable_index": (0x00B8A1C0, 0x00000080)
     },
     "mm": {
         "Audiobank":        (0x00020700, 0x000263F0),
