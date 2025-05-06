@@ -1,7 +1,7 @@
 # Zelda64 Audiobin Generator
 
 ## 🔧 How to Use
-Drag and drop decompressed ROM onto the script or use the following CLI command:
+Drag and drop a decompressed Ocarina of Time or Majora's Mask ROM onto the script or use the following CLI command:
 ```
 python <script name> <ROM file>
 ```
