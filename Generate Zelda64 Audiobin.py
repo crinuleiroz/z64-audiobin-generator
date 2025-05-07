@@ -131,7 +131,7 @@ def generate_oot_audiobin(file_dir : str, tempfolder : str):
 def generate_mm_audiobin(file_dir : str, tempfolder : str):
   with open(ROM_FILE, 'rb') as rom:
     for name, (offset, size) in AUDIOBIN_OFFSETS["mm"].items():
-      SysMsg.process_file(name)
+      SysMsg.processing_file(name)
       extract_and_write_audiofile(rom, offset, size, name, tempfolder)
 
   SysMsg.creating_archive(file_dir, "MM")
