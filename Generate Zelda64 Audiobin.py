@@ -171,23 +171,23 @@ if __name__ == "__main__":
 
     # OCARINA OF TIME BYTESWAPPED
     elif b"HT EELEGDNO  FEZDL A\x00\x00\x00\x00\x00\x00C\x00L\x00E" in rom_header:
-        SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
-        SysMsg.byteswapped_rom()
+      SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
+      SysMsg.byteswapped_rom()
 
     # MAJORA'S MASK BYTESWAPPED
     elif b"EZDL AAMOJARS'M SA K\x00\x00\x00\x00\x00\x00N\x00SZ\x00E" in rom_header:
-        SysMsg.detected_game("Majora's Mask", MM_PURPLE)
-        SysMsg.byteswapped_rom()
+      SysMsg.detected_game("Majora's Mask", MM_PURPLE)
+      SysMsg.byteswapped_rom()
 
     # OCARINA OF TIME LITTLE ENDIAN
     elif b"EHTEGELO DNEZ F ADL\x00\x00\x00\x00C\x00\x00\x00\x00ELZ" in rom_header:
-        SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
-        SysMsg.little_endian_rom()
+      SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
+      SysMsg.little_endian_rom()
 
     # MAJORA'S MASK LITTLE ENDIAN
     elif b"DLEZAM AAROJM S' KSA\x00\x00\x00\x00N\x00\x00\x00\x00ESZ" in rom_header:
-        SysMsg.detected_game("Majora's Mask", MM_PURPLE)
-        SysMsg.little_endian_rom()
+      SysMsg.detected_game("Majora's Mask", MM_PURPLE)
+      SysMsg.little_endian_rom()
 
     # UNKNOWN GAME
     else:
