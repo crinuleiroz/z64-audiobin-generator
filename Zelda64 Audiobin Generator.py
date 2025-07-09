@@ -59,7 +59,7 @@ GAME_SIGNATURES: dict[str, dict[str, str]] = {
 }
 
 ROM_FILE = sys.argv[1]
-ROM_LENGTH = 67108864 # Decompressed ROM Size
+ROM_SIZE = 67108864 # Decompressed ROM Size
 
 # Ocarina of Time Audiobank Index
 OOT_AUDIOBANK_INDEX: bytes = bytes([
@@ -308,9 +308,6 @@ def main(game: str) -> None:
 
 if __name__ == '__main__':
   SysMsg.header()
-
-  # if os.path.getsize(ROM_FILE) != ROM_LENGTH:
-    # SysMsg.compressed_rom()
 
   SysMsg.read_rom_header()
   with open(ROM_FILE, 'rb') as rom:
