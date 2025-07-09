@@ -19,6 +19,45 @@ YELLOW = '\x1b[33m'
 OOT_BLUE = '\x1b[38;5;39m'
 MM_PURPLE = '\x1b[38;5;141m'
 
+GAME_SIGNATURES: dict[str, dict[str, str]] = {
+  'big_endian': {
+    'oot': {
+      'signature': b"THE LEGEND OF ZELDA \x00\x00\x00\x00\x00\x00\x00CZLE\x00",
+      'name': "Ocarina of Time",
+      'color': OOT_BLUE
+    },
+    'mm': {
+      'signature': b"ZELDA MAJORA'S MASK \x00\x00\x00\x00\x00\x00\x00NZSE\x00",
+      'name': "Majora's Mask",
+      'color': MM_PURPLE
+    }
+  },
+  'little_endian': {
+    'oot': {
+      'signature': b"EHTEGELO DNEZ F ADL\x00\x00\x00\x00C\x00\x00\x00\x00ELZ",
+      'name': "Ocarina of Time",
+      'color': OOT_BLUE
+    },
+    'mm': {
+      'signature': b"DLEZAM AAROJM S' KSA\x00\x00\x00\x00N\x00\x00\x00\x00ESZ",
+      'name': "Majora's Mask",
+      'color': MM_PURPLE
+    }
+  },
+  'byteswapped': {
+    'oot': {
+      'signature': b"HT EELEGDNO  FEZDL A\x00\x00\x00\x00\x00\x00C\x00L\x00E",
+      'name': "Ocarina of Time",
+      'color': OOT_BLUE
+    },
+    'mm': {
+      'signature': b"EZDL AAMOJARS'M SA K\x00\x00\x00\x00\x00\x00N\x00SZ\x00E",
+      'name': "Majora's Mask",
+      'color': MM_PURPLE
+    }
+  }
+}
+
 ROM_FILE = sys.argv[1]
 ROM_LENGTH = 67108864 # Decompressed ROM Size
 
@@ -275,39 +314,30 @@ if __name__ == '__main__':
 
   SysMsg.read_rom_header()
   with open(ROM_FILE, 'rb') as rom:
-    rom_header = rom.read(64)
+    rom_header: bytes = rom.read(64)
 
-    # OCARINA OF TIME BIG ENDIAN
-    if b"THE LEGEND OF ZELDA \x00\x00\x00\x00\x00\x00\x00CZLE\x00" in rom_header:
-      SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
-      game = 'oot'
+    game: str = None
+    match_data: tuple[str, ...] = None
 
-    # MAJORA'S MASK BIG ENDIAN
-    elif b"ZELDA MAJORA'S MASK \x00\x00\x00\x00\x00\x00\x00NZSE\x00" in rom_header:
-      SysMsg.detected_game("Majora's Mask", MM_PURPLE)
-      game = 'mm'
+    for endianness, games in GAME_SIGNATURES.items():
+      for key, info in games.items():
+        if info['signature'] in rom_header:
+          match_data = (endianness, key, info)
+          break
+      if match_data:
+        break
 
-    # OCARINA OF TIME BYTESWAPPED
-    elif b"HT EELEGDNO  FEZDL A\x00\x00\x00\x00\x00\x00C\x00L\x00E" in rom_header:
-      SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
-      SysMsg.byteswapped_rom()
+    if match_data:
+      endianness, game, info = match_data
+      SysMsg.detected_game(info['name'], info['color'])
 
-    # MAJORA'S MASK BYTESWAPPED
-    elif b"EZDL AAMOJARS'M SA K\x00\x00\x00\x00\x00\x00N\x00SZ\x00E" in rom_header:
-      SysMsg.detected_game("Majora's Mask", MM_PURPLE)
-      SysMsg.byteswapped_rom()
-
-    # OCARINA OF TIME LITTLE ENDIAN
-    elif b"EHTEGELO DNEZ F ADL\x00\x00\x00\x00C\x00\x00\x00\x00ELZ" in rom_header:
-      SysMsg.detected_game("Ocarina of Time", OOT_BLUE)
-      SysMsg.little_endian_rom()
-
-    # MAJORA'S MASK LITTLE ENDIAN
-    elif b"DLEZAM AAROJM S' KSA\x00\x00\x00\x00N\x00\x00\x00\x00ESZ" in rom_header:
-      SysMsg.detected_game("Majora's Mask", MM_PURPLE)
-      SysMsg.little_endian_rom()
-
-    # UNKNOWN GAME
+      match endianness:
+        case 'little_endian':
+          SysMsg.little_endian_rom()
+        case 'byteswapped':
+          SysMsg.byteswapped_rom()
+        case 'big_endian':
+          pass
     else:
       SysMsg.unknown_game()
 
