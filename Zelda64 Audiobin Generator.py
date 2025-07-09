@@ -317,9 +317,9 @@ if __name__ == '__main__':
     match_data: tuple[str, ...] = None
 
     for endianness, games in GAME_SIGNATURES.items():
-      for key, info in games.items():
+      for game_key, info in games.items():
         if info['signature'] in rom_header:
-          match_data = (endianness, key, info)
+          match_data = (endianness, game_key, info)
           break
       if match_data:
         break
