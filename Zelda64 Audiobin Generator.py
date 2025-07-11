@@ -4,7 +4,6 @@ import shutil
 import tempfile
 from typing import BinaryIO
 
-# Last updated
 LAST_UPDATED = '2025.06.18'
 
 # Create ANSI formatting for terminal messages
@@ -16,50 +15,50 @@ GREEN  = '\x1b[38;5;115m'
 GREY   = '\x1b[38;5;8m'
 YELLOW = '\x1b[33m'
 
-OOT_BLUE = '\x1b[38;5;39m'
+OOT_BLUE  = '\x1b[38;5;39m'
 MM_PURPLE = '\x1b[38;5;141m'
 
 GAME_SIGNATURES: dict[str, dict[str, str]] = {
-  'big_endian': {
-    'oot': {
-      'signature': b"THE LEGEND OF ZELDA \x00\x00\x00\x00\x00\x00\x00CZLE\x00",
-      'name': "Ocarina of Time",
-      'color': OOT_BLUE
+    'big_endian': {
+        'oot': {
+            'signature': b"THE LEGEND OF ZELDA \x00\x00\x00\x00\x00\x00\x00CZLE\x00",
+            'name': "Ocarina of Time",
+            'color': OOT_BLUE
+        },
+        'mm': {
+            'signature': b"ZELDA MAJORA'S MASK \x00\x00\x00\x00\x00\x00\x00NZSE\x00",
+            'name': "Majora's Mask",
+            'color': MM_PURPLE
+        }
     },
-    'mm': {
-      'signature': b"ZELDA MAJORA'S MASK \x00\x00\x00\x00\x00\x00\x00NZSE\x00",
-      'name': "Majora's Mask",
-      'color': MM_PURPLE
-    }
-  },
-  'little_endian': {
-    'oot': {
-      'signature': b"EHTEGELO DNEZ F ADL\x00\x00\x00\x00C\x00\x00\x00\x00ELZ",
-      'name': "Ocarina of Time",
-      'color': OOT_BLUE
+    'little_endian': {
+        'oot': {
+            'signature': b"EHTEGELO DNEZ F ADL\x00\x00\x00\x00C\x00\x00\x00\x00ELZ",
+            'name': "Ocarina of Time",
+            'color': OOT_BLUE
+        },
+        'mm': {
+            'signature': b"DLEZAM AAROJM S' KSA\x00\x00\x00\x00N\x00\x00\x00\x00ESZ",
+            'name': "Majora's Mask",
+            'color': MM_PURPLE
+        }
     },
-    'mm': {
-      'signature': b"DLEZAM AAROJM S' KSA\x00\x00\x00\x00N\x00\x00\x00\x00ESZ",
-      'name': "Majora's Mask",
-      'color': MM_PURPLE
+    'byteswapped': {
+        'oot': {
+            'signature': b"HT EELEGDNO  FEZDL A\x00\x00\x00\x00\x00\x00C\x00L\x00E",
+            'name': "Ocarina of Time",
+            'color': OOT_BLUE
+        },
+        'mm': {
+            'signature': b"EZDL AAMOJARS'M SA K\x00\x00\x00\x00\x00\x00N\x00SZ\x00E",
+            'name': "Majora's Mask",
+            'color': MM_PURPLE
+        }
     }
-  },
-  'byteswapped': {
-    'oot': {
-      'signature': b"HT EELEGDNO  FEZDL A\x00\x00\x00\x00\x00\x00C\x00L\x00E",
-      'name': "Ocarina of Time",
-      'color': OOT_BLUE
-    },
-    'mm': {
-      'signature': b"EZDL AAMOJARS'M SA K\x00\x00\x00\x00\x00\x00N\x00SZ\x00E",
-      'name': "Majora's Mask",
-      'color': MM_PURPLE
-    }
-  }
 }
 
 ROM_FILE = sys.argv[1]
-ROM_SIZE = 67108864 # Decompressed ROM Size
+ROM_SIZE = 67108864  # Decompressed ROM Size
 
 # Ocarina of Time Audiobank Index
 OOT_AUDIOBANK_INDEX: bytes = bytes([
@@ -173,170 +172,176 @@ MM_AUDIOTABLE_INDEX: bytes = bytes([
 # "Filename": (offset, size)
 AUDIOBIN_OFFSETS: dict[str, dict[str, tuple[int, int]]] = {
     'oot': {
-       'Audiobank':        (0x0000D390, 0x0001CA50),
-       # 'Audiobank_index':  (0x00B896A0, 0x00000270),
-       'Audiotable':       (0x00079470, 0x00460AD0),
-       # 'Audiotable_index': (0x00B8A1C0, 0x00000080)
+        'Audiobank':        (0x0000D390, 0x0001CA50),
+        # 'Audiobank_index':  (0x00B896A0, 0x00000270),
+        'Audiotable':       (0x00079470, 0x00460AD0),
+        # 'Audiotable_index': (0x00B8A1C0, 0x00000080)
     },
     'mm': {
-       'Audiobank':        (0x00020700, 0x000263F0),
-       # 'Audiobank_index':  (0x00C776C0, 0x000002A0),
-       'Audiotable':       (0x00097F70, 0x00548770),
-       # 'Audiotable_index': (0x00C78380, 0x00000040)
+        'Audiobank':        (0x00020700, 0x000263F0),
+        # 'Audiobank_index':  (0x00C776C0, 0x000002A0),
+        'Audiotable':       (0x00097F70, 0x00548770),
+        # 'Audiotable_index': (0x00C78380, 0x00000040)
     }
 }
 
 # "Filename": bytes
 AUDIOBIN_INDICES: dict[str, bytes] = {
     'oot': {
-      'Audiobank_index':  OOT_AUDIOBANK_INDEX,
-      'Audiotable_index': OOT_AUDIOTABLE_INDEX
+        'Audiobank_index':  OOT_AUDIOBANK_INDEX,
+        'Audiotable_index': OOT_AUDIOTABLE_INDEX
     },
     'mm': {
-      'Audiobank_index':  MM_AUDIOBANK_INDEX,
-      'Audiotable_index': MM_AUDIOTABLE_INDEX,
+        'Audiobank_index':  MM_AUDIOBANK_INDEX,
+        'Audiotable_index': MM_AUDIOTABLE_INDEX,
     }
 
 }
 
+
 class SysMsg:
-  @staticmethod
-  def header():
-    print(f'''\
+    @staticmethod
+    def header():
+        print(f'''\
 {GREY}[▪]----------------------------------[▪]
  |   {RESET}{PINK}AUDIOBIN GENERATOR {GREY}v{LAST_UPDATED}   |
 [▪]----------------------------------[▪]{RESET}
 ''')
 
-  @staticmethod
-  def complete():
-    print(f'''\
+    @staticmethod
+    def complete():
+        print(f'''\
 {GREY}[▪]----------------------------------[▪]
  |     {RESET}{GREEN}Process is now completed      {GREY}|
 [▪]----------------------------------[▪]{RESET}
 ''')
-    os.system('pause')
+        os.system('pause')
 
-  @staticmethod
-  def compressed_rom():
-    print(f'''\
+    @staticmethod
+    def compressed_rom():
+        print(f'''\
 {GREY}[{PINK}>{GREY}]:{RESET} Error: ROM file is not decompressed!
 ''')
-    os.system('pause')
-    sys.exit(1)
+        os.system('pause')
+        sys.exit(1)
 
-  @staticmethod
-  def read_rom_header():
-    print(f'''\
+    @staticmethod
+    def read_rom_header():
+        print(f'''\
 {GREY}[{PINK}>{GREY}]:{RESET} Reading ROM header:     {BLUE}"{ROM_FILE}"{RESET}''')
 
-  @staticmethod
-  def detected_game(game : str, color : str):
-    print(f'''\
+    @staticmethod
+    def detected_game(game: str, color: str):
+        print(f'''\
 {GREY}[{PINK}>{GREY}]:{RESET} Detected game:          {color}"{game}"{RESET}
 ''')
 
-  @staticmethod
-  def byteswapped_rom():
-    print(f'''\
+    @staticmethod
+    def byteswapped_rom():
+        print(f'''\
 {GREY}[{PINK}>{GREY}]:{RESET} Error: ROM file byte order is "Byteswapped", use {PINK}tool64{RESET} to change the byte order to "Big Endian"!
 ''')
-    os.system('pause')
-    sys.exit(1)
+        os.system('pause')
+        sys.exit(1)
 
-  @staticmethod
-  def little_endian_rom():
-    print(f'''\
+    @staticmethod
+    def little_endian_rom():
+        print(f'''\
 {GREY}[{PINK}>{GREY}]:{RESET} Error: ROM file byte order is "Little Endian", use {PINK}tool64{RESET} to change the byte order to "Big Endian"!
 ''')
-    os.system('pause')
-    sys.exit(1)
+        os.system('pause')
+        sys.exit(1)
 
-  @staticmethod
-  def unknown_game():
-    print(f'''\
+    @staticmethod
+    def unknown_game():
+        print(f'''\
 {GREY}[{PINK}>{GREY}]:{RESET} Error: Decompressed ROM has an unexpected ROM header!
 ''')
-    os.system('pause')
-    sys.exit(1)
+        os.system('pause')
+        sys.exit(1)
 
-  @staticmethod
-  def processing_file(name: str):
-    print(f'''\
+    @staticmethod
+    def processing_file(name: str):
+        print(f'''\
 {GREY}[{PINK}>{GREY}]:{RESET} Extracting and writing: {BLUE}"{name}"{RESET}''')
 
-  @staticmethod
-  def creating_archive(file_dir : str, filename : str):
-    print(f'''\
+    @staticmethod
+    def creating_archive(file_dir: str, filename: str):
+        print(f'''\
 
 {GREY}[{PINK}>{GREY}]:{RESET} Creating archive:       {BLUE}"{file_dir}/{filename}.audiobin"{RESET}
 ''')
 
-def extract_and_write_audiofile(rom: BinaryIO, offset : int, size: int, filename: str, tempfolder: str):
-  rom.seek(offset)
-  audio_data = rom.read(size)
-  filepath = os.path.join(tempfolder, filename)
-  with open(filepath, 'wb') as f:
-    f.write(audio_data)
+
+def extract_and_write_audiofile(rom: BinaryIO, offset: int, size: int, filename: str, tempfolder: str):
+    rom.seek(offset)
+    audio_data = rom.read(size)
+    filepath = os.path.join(tempfolder, filename)
+    with open(filepath, 'wb') as f:
+        f.write(audio_data)
+
 
 def write_audiofile_indices(index_bytes: bytes, filename: str, tempfolder: str):
-  filepath = os.path.join(tempfolder, filename)
-  with open(filepath, 'wb') as f:
-    f.write(index_bytes)
+    filepath = os.path.join(tempfolder, filename)
+    with open(filepath, 'wb') as f:
+        f.write(index_bytes)
+
 
 def generate_audiobin(game: str, file_dir: str, tempfolder: str):
-  label = game.upper()
+    label = game.upper()
 
-  with open(ROM_FILE, 'rb') as rom:
-    for name, (offset, size) in AUDIOBIN_OFFSETS[game].items():
-      SysMsg.processing_file(name)
-      extract_and_write_audiofile(rom, offset, size, name, tempfolder)
+    with open(ROM_FILE, 'rb') as rom:
+        for name, (offset, size) in AUDIOBIN_OFFSETS[game].items():
+            SysMsg.processing_file(name)
+            extract_and_write_audiofile(rom, offset, size, name, tempfolder)
 
-  for name, index_bytes in AUDIOBIN_INDICES[game].items():
-    write_audiofile_indices(index_bytes, name, tempfolder)
+    for name, index_bytes in AUDIOBIN_INDICES[game].items():
+        write_audiofile_indices(index_bytes, name, tempfolder)
 
-  SysMsg.creating_archive(file_dir, label)
-  shutil.make_archive(f'{file_dir}/{label}', 'zip', tempfolder)
-  os.rename(f'{file_dir}/{label}.zip', f'{file_dir}/{label}.audiobin')
+    SysMsg.creating_archive(file_dir, label)
+    shutil.make_archive(f'{file_dir}/{label}', 'zip', tempfolder)
+    os.rename(f'{file_dir}/{label}.zip', f'{file_dir}/{label}.audiobin')
+
 
 def main(game: str) -> None:
-  file_dir = os.path.dirname(os.path.abspath(__file__))
+    file_dir = os.path.dirname(os.path.abspath(__file__))
 
-  with tempfile.TemporaryDirectory(prefix='audiobin_generator_') as tempfolder:
-    if game in ('oot', 'mm'):
-      generate_audiobin(game, file_dir, tempfolder)
+    with tempfile.TemporaryDirectory(prefix='audiobin_generator_') as tempfolder:
+        if game in ('oot', 'mm'):
+            generate_audiobin(game, file_dir, tempfolder)
+
 
 if __name__ == '__main__':
-  SysMsg.header()
+    SysMsg.header()
 
-  SysMsg.read_rom_header()
-  with open(ROM_FILE, 'rb') as rom:
-    rom_header: bytes = rom.read(64)
+    SysMsg.read_rom_header()
+    with open(ROM_FILE, 'rb') as rom:
+        rom_header: bytes = rom.read(64)
 
-    game: str = None
-    match_data: tuple[str, ...] = None
+        game: str = None
+        match_data: tuple[str, ...] = None
 
-    for endianness, games in GAME_SIGNATURES.items():
-      for game_key, info in games.items():
-        if info['signature'] in rom_header:
-          match_data = (endianness, game_key, info)
-          break
-      if match_data:
-        break
+        for endianness, games in GAME_SIGNATURES.items():
+            for game_key, info in games.items():
+                if info['signature'] in rom_header:
+                    match_data = (endianness, game_key, info)
+                    break
+            if match_data:
+                break
 
-    if match_data:
-      endianness, game, info = match_data
-      SysMsg.detected_game(info['name'], info['color'])
+        if match_data:
+            endianness, game, info = match_data
+            SysMsg.detected_game(info['name'], info['color'])
 
-      match endianness:
-        case 'little_endian':
-          SysMsg.little_endian_rom()
-        case 'byteswapped':
-          SysMsg.byteswapped_rom()
-        case 'big_endian':
-          pass
-    else:
-      SysMsg.unknown_game()
+            match endianness:
+                case 'little_endian':
+                    SysMsg.little_endian_rom()
+                case 'byteswapped':
+                    SysMsg.byteswapped_rom()
+                case 'big_endian':
+                    pass
+        else:
+            SysMsg.unknown_game()
 
-  main(game)
-  SysMsg.complete()
+    main(game)
+    SysMsg.complete()
